@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Notifications</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e0e7ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            width: 95%;
+            max-width: 800px;
+            text-align: center;
+        }
+        h1 {
+            color: #3b82f6;
+            margin-bottom: 20px;
+        }
+        .notification-list {
+            margin-bottom: 20px;
+        }
+        .notification {
+            background-color: #f9fafb;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .notification-title {
+            font-weight: bold;
+            color: #3b82f6;
+        }
+        .notification-message {
+            color: #333;
+        }
+        .notification-timestamp {
+            color: #888;
+            font-size: 0.9em;
+            text-align: right;
+        }
+        button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Notifications</h1>
+        <div id="notificationList" class="notification-list">
+            <!-- Dynamically populated notifications will go here -->
+        </div>
+        <button onclick="location.href='admin_attendance.html'">Back to Dashboard</button>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', loadNotifications);
+
+        function loadNotifications() {
+            const notifications = getNotifications();
+            const notificationList = document.getElementById('notificationList');
+            notificationList.innerHTML = '';
+
+            notifications.forEach(notification => {
+                const notificationDiv = document.createElement('div');
+                notificationDiv.classList.add('notification');
+
+                const title = document.createElement('div');
+                title.classList.add('notification-title');
+                title.textContent = notification.title;
+
+                const message = document.createElement('div');
+                message.classList.add('notification-message');
+                message.textContent = notification.message;
+
+                const timestamp = document.createElement('div');
+                timestamp.classList.add('notification-timestamp');
+                timestamp.textContent = new Date(notification.timestamp).toLocaleString();
+
+                notificationDiv.appendChild(title);
+                notificationDiv.appendChild(message);
+                notificationDiv.appendChild(timestamp);
+                notificationList.appendChild(notificationDiv);
+            });
+        }
+
+        function getNotifications() {
+            const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+            return notifications;
+        }
+
+        // Example function to add a notification with the current date and time
+        function addNotification(title, message) {
+            const notifications = getNotifications();
+            notifications.push({ title, message, timestamp: new Date().toISOString() });
+            localStorage.setItem('notifications', JSON.stringify(notifications));
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWh6IizRCq7AULflN9UdF0tMpb7Puu3j0IetZSzS_qrH_H1ctpnMnCXsw&s=10') no-repeat center center fixed;
+            background-size: cover;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h1 {
+            color: #3b82f6;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #3b82f6;
+            color: white;
+            padding: 12px 20px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            margin: 10px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+        .button:hover {
+            background-color: #2563eb;
+        }
+        .link {
+            text-align: center;
+            margin-top: 20px;
+            display: block;
+            font-size: 14px;
+        }
+        .link a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+        .link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sign In</h1>
+        <form id="signinForm">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            
+            <button type="submit" class="button">Sign In</button>
+        </form>
+        <p class="link">Don't have an account? <a href="signup.html">Sign Up</a></p>
+        <p class="link"><a href="forgotpassword.html">Forgot Password?</a></p>
+    </div>
+
+    <script>
+        document.getElementById('signinForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const accounts = JSON.parse(localStorage.getItem('accounts')) || [];
+            const user = accounts.find(account => account.email === email && account.password === password);
+
+            if (user) {
+                localStorage.setItem('currentUserEmail', email); // Store the signed-in user's email
+                alert('Sign in successful!');
+                if (user.role === 'admin' || user.role === 'teacher') {
+                    window.location.href = 'admin.html'; // Redirect to admin dashboard
+                } else {
+                    window.location.href = 'user.html'; // Redirect to user dashboard
+                }
+            } else {
+                alert('Invalid email or password.');
+            }
+        });
+
+        // Create admin account if it doesn't exist
+        const adminEmail = 'admin@system.com';
+        const admin = JSON.parse(localStorage.getItem('user_' + adminEmail)) || null;
+        if (!admin) {
+            const adminUser = {
+                name: 'Admin',
+                email: adminEmail,
+                password: 'Admin100',
+                subject: '',
+                role: 'admin'
+            };
+            const accounts = JSON.parse(localStorage.getItem('accounts')) || [];
+            accounts.push(adminUser);
+            localStorage.setItem('accounts', JSON.stringify(accounts));
+        }
+    </script>
+</body>
+</html>

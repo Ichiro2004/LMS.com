@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWh6IizRCq7AULflN9UdF0tMpb7Puu3j0IetZSzS_qrH_H1ctpnMnCXsw&s=10') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+        h1 {
+            color: #3b82f6;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="email"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .button {
+            background-color: #3b82f6;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+        .button:hover {
+            background-color: #2563eb;
+        }
+        .signin-link {
+            text-align: center;
+            margin-top: 20px;
+            display: block;
+            font-size: 14px;
+        }
+        .signin-link a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+        .signin-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sign Up</h1>
+        <form id="signupForm">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+            
+            <label for="age">Age:</label>
+            <input type="number" id="age" name="age" required>
+            
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            
+            <label for="grade">Grade Level:</label>
+            <select id="grade" name="grade" required>
+                <option value="11">Grade 11</option>
+                <option value="12">Grade 12</option>
+            </select>
+            
+            <label for="schoolYear">School Year:</label>
+            <select id="schoolYear" name="schoolYear" required>
+                <option value="2023-2024">2023 - 2024</option>
+                <option value="2024-2025">2024 - 2025</option>
+                <option value="2025-2026">2025 - 2026</option>
+            </select>
+            
+            <label for="strand">Strand:</label>
+            <select id="strand" name="strand" required>
+                <option value="ICT PROGRAMMING">ICT PROGRAMMING</option>
+                <option value="ABM">ABM</option>
+                <option value="ICT ANIMATION">ICT ANIMATION</option>
+                <option value="HUMSS">HUMSS</option>
+                <option value="GAS">GAS</option>
+            </select>
+            
+            <button type="submit" class="button">Sign Up</button>
+        </form>
+        <p class="signin-link">Already have an account? <a href="signin.html">Sign In</a></p>
+    </div>
+
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const age = document.getElementById('age').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const grade = document.getElementById('grade').value;
+            const schoolYear = document.getElementById('schoolYear').value;
+            const strand = document.getElementById('strand').value;
+
+            const user = {
+                name: name,
+                age: age,
+                email: email,
+                password: password,
+                grade: grade,
+                schoolYear: schoolYear,
+                strand: strand,
+                role: 'user'
+            };
+
+            const accounts = JSON.parse(localStorage.getItem('accounts')) || [];
+            accounts.push(user);
+            localStorage.setItem('accounts', JSON.stringify(accounts));
+
+            // Add notification
+            addNotification('Account Created', `An account for ${name} was created.`);
+
+            // Add history
+            addUserHistoryEntry(email, new Date().toLocaleString(), 'Account Creation', `Account created for ${name}.`);
+
+            alert('Account created successfully! Please sign in.');
+            window.location.href = 'signin.html';
+        });
+
+        function addNotification(title, message) {
+            const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+            notifications.push({ title, message, timestamp: new Date().toLocaleString() });
+            localStorage.setItem('notifications', JSON.stringify(notifications));
+        }
+
+        function addUserHistoryEntry(email, date, action, details) {
+            let userHistory = JSON.parse(localStorage.getItem('userHistory')) || {};
+            if (!userHistory[email]) {
+                userHistory[email] = [];
+            }
+            userHistory[email].push({ date, action, details });
+            localStorage.setItem('userHistory', JSON.stringify(userHistory));
+        }
+
+        // Create admin account if it doesn't exist
+        const adminEmail = 'admin@system.com';
+        const admin = JSON.parse(localStorage.getItem('user_' + adminEmail)) || null;
+        if (!admin) {
+            const adminUser = {
+                name: 'Admin',
+                email: adminEmail,
+                password: 'Admin100',
+                grade: '',
+                schoolYear: '',
+                strand: '',
+                age: '',
+                role: 'admin'
+            };
+            const accounts = JSON.parse(localStorage.getItem('accounts')) || [];
+            accounts.push(adminUser);
+            localStorage.setItem('accounts', JSON.stringify(accounts));
+        }
+    </script>
+</body>
+</html>

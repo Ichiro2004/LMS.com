@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Attendance Sheet</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e0e7ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            width: 95%;
+            max-width: 1200px;
+            text-align: center;
+        }
+        h2 {
+            color: #3b82f6;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .left-buttons {
+            display: flex;
+            align-items: center;
+        }
+        .right-buttons {
+            display: flex;
+            align-items: center;
+        }
+        select {
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+        }
+        button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-left: 10px;
+        }
+        button:hover {
+            background-color: #2563eb;
+        }
+        .icon-button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 10px;
+        }
+        .icon-button img {
+            width: 24px;
+            height: 24px;
+        }
+        .attendance-section {
+            margin-bottom: 20px;
+        }
+        .attendance-section h3 {
+            color: #3b82f6;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #f1f5f9;
+            color: #333;
+        }
+        tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+        tr:hover {
+            background-color: #f3f4f6;
+        }
+        .settings-button {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .attendance-summary {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .summary-table th, .summary-table td {
+            border: none;
+            padding: 8px;
+            text-align: left;
+        }
+        .month-display, .current-date {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #3b82f6;
+        }
+        .week-navigation {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Admin Attendance Sheet</h2>
+        <div class="current-date">
+            <strong>Current Date:</strong> <span id="currentDateDisplay"></span>
+            <button class="icon-button" onclick="goToToday()">
+                <img src="https://img.icons8.com/ios-filled/50/000000/today.png" alt="Today">
+            </button>
+        </div>
+        <div class="month-display" id="selectedMonthDisplay"></div>
+        <div class="buttons">
+            <div class="left-buttons">
+                <select id="strandChooser" onchange="loadAttendance()">
+                    <option value="">Select Strand</option>
+                    <option value="ICT PROGRAMMING">ICT PROGRAMMING</option>
+                    <option value="ABM">ABM</option>
+                    <option value="ICT ANIMATION">ICT ANIMATION</option>
+                    <option value="HUMSS">HUMSS</option>
+                    <option value="GAS">GAS</option>
+                </select>
+                <button onclick="location.href='admin_calendar.html'">Past Calendars</button>
+                <button onclick="location.href='admin_settings.html'">Settings</button>
+            </div>
+            <div class="right-buttons">
+                <button class="icon-button" onclick="location.href='admin_notifications.html'">
+                    <img src="https://img.icons8.com/ios-filled/50/000000/bell.png" alt="Notifications">
+                </button>
+                <button class="icon-button" onclick="location.href='admin_history.html'">
+                    <img src="https://img.icons8.com/ios-filled/50/000000/time-machine.png" alt="History">
+                </button>
+            </div>
+        </div>
+        <div id="attendanceSections"></div>
+        <div class="settings-button">
+            <button onclick="location.href='edit_attendance.html'">Edit Attendance</button>
+        </div>
+        <div class="week-navigation">
+            <button onclick="changeWeek(-1)">Previous Week</button>
+            <button onclick="changeWeek(1)">Next Week</button>
+        </div>
+        <div class="attendance-summary">
+            <h3>Summary</h3>
+            <table class="summary-table">
+                <tr>
+                    <th>Total Students:</th>
+                    <td id="totalStudents">0</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <script>
+        let currentDate = new Date(localStorage.getItem('selectedDate') || new Date().toISOString().split('T')[0]);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            displayCurrentDate();
+            displaySelectedMonth();
+            loadAttendance();
+        });
+
+        function displayCurrentDate() {
+            const currentDateDisplay = document.getElementById('currentDateDisplay');
+            currentDateDisplay.textContent = `${currentDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
+        }
+
+        function displaySelectedMonth() {
+            const selectedMonth = localStorage.getItem('selectedMonth');
+            const selectedMonthDisplay = document.getElementById('selectedMonthDisplay');
+            if (selectedMonth) {
+                selectedMonthDisplay.textContent = `Selected Month: ${selectedMonth}`;
+            } else {
+                selectedMonthDisplay.textContent = 'No month selected.';
+            }
+        }
+
+        function loadAttendance() {
+            const strand = document.getElementById('strandChooser').value;
+            const teacherSubject = localStorage.getItem('teacherSubject');
+            const currentUserEmail = localStorage.getItem('currentUserEmail');
+            const accounts = JSON.parse(localStorage.getItem('accounts')) || [];
+            const currentUser = accounts.find(account => account.email === currentUserEmail);
+
+            if (!currentUser) {
+                alert('No user is signed in.');
+                window.location.href = 'signin.html';
+                return;
+            }
+
+            const students = getStudents();
+
+            
+            const filteredStudents = students.filter(student => 
+                student.strand === strand && student.subject === teacherSubject
+            );
+
+            if (filteredStudents.length === 0) {
+                alert('No students found for the selected strand and subject.');
+            }
+            populateAttendance(filteredStudents);
+        }
+
+        function populateAttendance(students) {
+            const attendanceSections = document.getElementById('attendanceSections');
+            attendanceSections.innerHTML = '';
+
+            const section = document.createElement('div');
+            section.classList.add('attendance-section');
+            section.innerHTML = `
+                <h3>Attendance</h3>
+                <table id="attendanceTable">
+                    <thead>
+                        <tr>
+                            ${generateDateHeaders()}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${generateAttendanceRows(students)}
+                    </tbody>
+                </table>
+            `;
+            attendanceSections.appendChild(section);
+
+            document.getElementById('totalStudents').textContent = students.length;
+        }
+
+        function generateDateHeaders() {
+            const startOfWeek = currentDate.getDate() - currentDate.getDay() + 1;
+            let headers = '<th>Student Name</th>';
+
+            for (let i = 0; i < 5; i++) {
+                const date = new Date(currentDate);
+                const dateString = new Date(date.setDate(startOfWeek + i)).toISOString().split('T')[0];
+                headers += `<th>${dateString}</th>`;
+            }
+            return headers;
+        }
+
+        function generateAttendanceRows(students) {
+            let rows = '';
+
+            students.forEach(student => {
+                let row = `<tr><td>${student.name}</td>`;
+                for (let i = 0; i < 5; i++) {
+                    const date = new Date(currentDate);
+                    const startOfWeek = date.getDate() - date.getDay() + 1;
+                    const dateString = new Date(date.setDate(startOfWeek + i)).toISOString().split('T')[0];
+                    const attendanceStatus = student.attendance && student.attendance[dateString];
+                    row += `<td>${attendanceStatus || 'N/A'}</td>`;
+                }
+                row += '</tr>';
+                rows += row;
+            });
+            return rows;
+        }
+
+        function getStudents() {
+            return JSON.parse(localStorage.getItem('students')) || [];
+        }
+
+        function changeWeek(offset) {
+            currentDate.setDate(currentDate.getDate() + offset * 7);
+            localStorage.setItem('selectedDate', currentDate.toISOString().split('T')[0]);
+            loadAttendance();
+            displayCurrentDate();
+        }
+
+        function goToToday() {
+            currentDate = new Date();
+            localStorage.setItem('selectedDate', currentDate.toISOString().split('T')[0]);
+            loadAttendance();
+            displayCurrentDate();
+        }
+    </script>
+</body>
+</html>

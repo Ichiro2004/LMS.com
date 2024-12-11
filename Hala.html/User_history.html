@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View History</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e0e7ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            width: 95%;
+            max-width: 1200px;
+            text-align: center;
+        }
+        h2 {
+            color: #3b82f6;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #f1f5f9;
+            color: #333;
+        }
+        tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+        tr:hover {
+            background-color: #f3f4f6;
+        }
+        button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>History of User Actions</h2>
+        <table id="historyTable">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Action</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            </tbody>
+        </table>
+        <button onclick="location.href='userd.html'">Back to Attendance</button>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', loadHistory);
+
+        function loadHistory() {
+            const email = localStorage.getItem('currentUserEmail');
+            if (!email) {
+                alert('No user logged in.');
+                window.location.href = 'signin.html';
+                return;
+            }
+
+            const history = getHistoryForUser(email);
+            const historyTableBody = document.getElementById('historyTable').querySelector('tbody');
+            historyTableBody.innerHTML = '';
+
+            history.forEach(entry => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${entry.date}</td>
+                    <td>${entry.action}</td>
+                    <td>${entry.details}</td>
+                `;
+                historyTableBody.appendChild(row);
+            });
+        }
+
+        function getHistoryForUser(email) {
+            const allHistory = JSON.parse(localStorage.getItem('userHistory')) || {};
+            return allHistory[email] || [];
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+        h2 {
+            color: #0078D7;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: none; /* Hidden by default */
+        }
+        .profile-info {
+            margin: 20px 0;
+            display: none; /* Hidden by default */
+        }
+        .profile-info p {
+            margin: 5px 0;
+            font-size: 16px;
+            color: #333;
+        }
+        input[type="text"],
+        input[type="file"],
+        select {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #0078D7;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            display: none; /* Hidden by default */
+        }
+        button:hover {
+            background-color: #0053a5;
+        }
+        .settings-button {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 id="profileHeading">Edit Profile</h2>
+        <img src="avatar.jpg" alt="User Avatar" class="profile-avatar" id="avatarImg">
+        <input type="file" accept="image/*" id="avatarInput">
+        <div class="profile-info" id="profileInfo">
+            <p><strong>Name:</strong> <span id="name"></span></p>
+            <input type="text" id="nameInput" placeholder="Change Name">
+            <p><strong>Email:</strong> <span id="email"></span></p>
+            <input type="text" id="emailInput" placeholder="Change Email">
+            <p><strong>Grade Level:</strong> <span id="grade"></span></p>
+            <select id="gradeInput">
+                <option value="11">Grade 11</option>
+                <option value="12">Grade 12</option>
+            </select>
+            <p><strong>School Year:</strong> <span id="year"></span></p>
+            <select id="yearInput">
+                <option value="2023-2024">2023 - 2024</option>
+                <option value="2024-2025">2024 - 2025</option>
+                <option value="2025-2026">2025 - 2026</option>
+            </select>
+            <p><strong>Strand:</strong> <span id="strand"></span></p>
+            <select id="strandInput">
+                <option value="ICT PROGRAMMING">ICT PROGRAMMING</option>
+                <option value="ABM">ABM</option>
+                <option value="ICT ANIMATION">ICT ANIMATION</option>
+                <option value="HUMSS">HUMSS</option>
+                <option value="GAS">GAS</option>
+            </select>
+        </div>
+        <button onclick="updateProfile()" id="saveChangesButton">Save Changes</button>
+        <button class="settings-button" onclick="location.href='userd.html'">Back to Dashboard</button>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const avatarInput = document.getElementById('avatarInput');
+            const avatarImg = document.getElementById('avatarImg');
+            avatarInput.addEventListener('change', function(event) {
+                const reader = new FileReader();
+                reader.onload = function() {
+                    const dataURL = reader.result;
+                    avatarImg.src = dataURL;
+                    localStorage.setItem('avatar_' + localStorage.getItem('currentUserEmail'), dataURL); // Save avatar to localStorage
+                };
+                reader.readAsDataURL(event.target.files[0]);
+            });
+
+            // Load saved profile information from localStorage
+            const email = localStorage.getItem('currentUserEmail'); // Retrieve the current user's email
+            if (email) {
+                const user = JSON.parse(localStorage.getItem('user_' + email)) || {};
+
+                if (user.name) {
+                    document.getElementById('name').textContent = user.name;
+                    document.getElementById('profileHeading').textContent = `Edit Profile for ${user.name}`;
+                    document.getElementById('profileInfo').style.display = 'block';
+                    document.getElementById('avatarImg').style.display = 'block';
+                    document.getElementById('saveChangesButton').style.display = 'block';
+                }
+                if (user.email) document.getElementById('email').textContent = user.email;
+                if (user.grade) document.getElementById('grade').textContent = user.grade;
+                if (user.schoolYear) document.getElementById('year').textContent = user.schoolYear;
+                if (user.strand) document.getElementById('strand').textContent = user.strand;
+                if (localStorage.getItem('avatar_' + email)) avatarImg.src = localStorage.getItem('avatar_' + email);
+            }
+
+            // Function to update profile
+            window.updateProfile = function() {
+                const nameInput = document.getElementById('nameInput').value;
+                const emailInput = document.getElementById('emailInput').value;
+                const gradeInput = document.getElementById('gradeInput').value;
+                const yearInput = document.getElementById('yearInput').value;
+                const strandInput = document.getElementById('strandInput').value;
+
+                const user = JSON.parse(localStorage.getItem('user_' + email)) || {};
+
+                if (nameInput) user.name = nameInput;
+                if (emailInput) user.email = emailInput;
+                if (gradeInput) user.grade = gradeInput;
+                if (yearInput) user.schoolYear = yearInput;
+                if (strandInput) user.strand = strandInput;
+
+                // Save updated user to localStorage
+                localStorage.setItem('user_' + email, JSON.stringify(user));
+
+                // Update profile info display
+                if (user.name) document.getElementById('name').textContent = user.name;
+                if (user.email) document.getElementById('email').textContent = user.email;
+                if (user.grade) document.getElementById('grade').textContent = user.grade;
+                if (user.schoolYear) document.getElementById('year').textContent = user.schoolYear;
+                if (user.strand) document.getElementById('strand').textContent = user.strand;
+
+                // Add notification
+                addNotification('Profile Updated', `The profile for ${user.name} was updated.`);
+
+                // Add history
+                addUserHistoryEntry(email, new Date().toLocaleString(), 'Profile Update', `Profile updated for ${user.name}.`);
+
+                alert('Profile updated successfully!');
+            }
+
+            function addNotification(title, message) {
+                const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+                const email = localStorage.getItem('currentUserEmail');
+                if (!notifications[email]) {
+                    notifications[email] = [];
+                }
+                notifications[email].push({ title, message, timestamp: new Date().toLocaleString() });
+                localStorage.setItem('notifications', JSON.stringify(notifications));
+            }
+
+            function addUserHistoryEntry(email, date, action, details) {
+                let userHistory = JSON.parse(localStorage.getItem('userHistory')) || {};
+                if (!userHistory[email]) {
+                    userHistory[email] = [];
+                }
+                userHistory[email].push({ date, action, details });
+                localStorage.setItem('userHistory', JSON.stringify(userHistory));
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+   
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h2 {
+            color: #0078D7;
+            margin-bottom: 20px;
+        }
+        .profile-info {
+            margin: 20px 0;
+        }
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .profile-info p {
+            margin: 5px 0;
+        }
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .button {
+            background-color: #0078D7;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 5px 0;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .button:hover {
+            background-color: #0053a5;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #f1f5f9;
+            color: #333;
+        }
+        tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+        tr:hover {
+            background-color: #f3f4f6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Admin Dashboard</h2>
+        <div class="profile-info">
+            <img src="avatar.jpg" alt="User Avatar" class="profile-avatar" id="userAvatar">
+            <p><strong>Email:</strong> <span id="userEmail"></span></p>
+            <p><strong>Name:</strong> <span id="userName"></span></p>
+            <p id="userSubjectWrapper" style="display: none;"><strong>Subject:</strong> <span id="userSubject"></span></p>
+            <p id="userGradeWrapper" style="display: none;"><strong>Grade Level:</strong> <span id="userGrade"></span></p>
+        </div>
+        <div class="buttons">
+            <button class="button" onclick="location.href='admin_attendance.html'">
+                Attendance Sheet
+            </button>
+            <button class="button" onclick="location.href='admin_settings.html'">
+                Settings
+            </button>
+        </div>
+        <h2>Teacher Accounts</h2>
+        <table id="accountsTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Subject</th>
+                    <th>Grade Level</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', loadUserInfo);
+
+        function loadUserInfo() {
+            const currentUserEmail = localStorage.getItem('currentUserEmail');
+            if (currentUserEmail) {
+                const accounts = JSON.parse(localStorage.getItem('accounts')) || [];
+                const user = accounts.find(account => account.email === currentUserEmail);
+                
+                if (user) {
+                    document.getElementById('userEmail').textContent = user.email;
+                    document.getElementById('userName').textContent = user.name;
+                    document.getElementById('userAvatar').src = user.avatar || 'default_avatar.jpg';
+
+                    if (user.subject) {
+                        document.getElementById('userSubjectWrapper').style.display = 'block';
+                        document.getElementById('userSubject').textContent = user.subject;
+                        localStorage.setItem('teacherSubject', user.subject);
+                    }
+
+                    if (user.grade) {
+                        document.getElementById('userGradeWrapper').style.display = 'block';
+                        document.getElementById('userGrade').textContent = user.grade;
+                    }
+
+                    loadTeacherAccounts();
+                } else {
+                    alert('User account not found.');
+                    window.location.href = 'signin.html';
+                }
+            } else {
+                alert('No user is signed in.');
+                window.location.href = 'signin.html';
+            }
+        }
+
+        function loadTeacherAccounts() {
+            const accounts = JSON.parse(localStorage.getItem('accounts')) || [];
+            const accountsTableBody = document.getElementById('accountsTable').querySelector('tbody');
+            accountsTableBody.innerHTML = '';
+
+            accounts.forEach(account => {
+                if (account.role === 'teacher') {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${account.name}</td>
+                        <td>${account.email}</td>
+                        <td>${account.subject}</td>
+                        <td>${account.grade || ''}</td>
+                    `;
+                    accountsTableBody.appendChild(row);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

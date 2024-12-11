@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Attendance</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e0e7ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            width: 95%;
+            max-width: 1200px;
+            text-align: center;
+        }
+        h2 {
+            color: #3b82f6;
+            margin-bottom: 20px;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .buttons select, .buttons button {
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #f1f5f9;
+        }
+        tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+        tr:hover {
+            background-color: #f3f4f6;
+        }
+        button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #2563eb;
+        }
+        .current-date {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Edit Attendance</h2>
+        <div class="buttons">
+            <select id="sectionChooser">
+                <!-- Section options dynamically populated -->
+            </select>
+            <button onclick="loadAttendance()">Load Attendance</button>
+        </div>
+        <div class="current-date">
+            <strong>Date:</strong> <span id="selectedDate"></span>
+        </div>
+        <table id="attendanceTable">
+            <thead>
+                <tr id="dateHeaders">
+                    <th>Student Name</th>
+                    <!-- Weekly dates dynamically populated -->
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Attendance rows dynamically generated -->
+            </tbody>
+        </table>
+        <button onclick="saveAttendance()">Save Attendance</button>
+        <button onclick="location.href='admin_attendance.html'">Back to Attendance</button>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSections();
+            loadSelectedDate();
+        });
+
+        function loadSections() {
+            const sections = ['ICT PROGRAMMING', 'ABM', 'ICT ANIMATION', 'HUMSS', 'GAS'];
+            const sectionChooser = document.getElementById('sectionChooser');
+            sectionChooser.innerHTML = sections.map(section => `<option value="${section}">${section}</option>`).join('');
+        }
+
+        function loadSelectedDate() {
+            const selectedDate = localStorage.getItem('selectedDate') || new Date().toISOString().split('T')[0];
+            document.getElementById('selectedDate').textContent = selectedDate;
+            generateDateHeaders(new Date(selectedDate));
+        }
+
+        function generateDateHeaders(selectedDate) {
+            const dateHeaders = document.getElementById('dateHeaders');
+            dateHeaders.innerHTML = '<th>Student Name</th>';
+            const startOfWeek = selectedDate.getDate() - selectedDate.getDay() + 1;
+
+            for (let i = 0; i < 5; i++) {
+                const date = new Date(selectedDate.setDate(startOfWeek + i));
+                const dateString = date.toISOString().split('T')[0];
+                dateHeaders.innerHTML += `<th>${dateString}</th>`;
+            }
+        }
+
+        function loadAttendance() {
+            const section = document.getElementById('sectionChooser').value;
+            const students = getStudents().filter(student => student.strand === section);
+            const attendanceTableBody = document.querySelector('#attendanceTable tbody');
+            attendanceTableBody.innerHTML = students.map(student => `
+                <tr>
+                    <td>${student.name}</td>
+                    ${generateAttendanceCells(student)}
+                    <td><button onclick="sendNotification('${student.name}', getAttendanceStatus('${student.name}'))">Notify</button></td>
+                </tr>`).join('');
+        }
+
+        function generateAttendanceCells(student) {
+            const selectedDate = new Date(localStorage.getItem('selectedDate') || new Date().toISOString().split('T')[0]);
+            const startOfWeek = selectedDate.getDate() - selectedDate.getDay() + 1;
+            let cells = '';
+
+            for (let i = 0; i < 5; i++) {
+                const date = new Date(selectedDate.setDate(startOfWeek + i));
+                const dateString = date.toISOString().split('T')[0];
+                const status = student[dateString] || 'Present';
+                cells += `
+                    <td>
+                        <select id="attendance_${student.name}_${dateString}">
+                            <option value="Present" ${status === 'Present' ? 'selected' : ''}>Present</option>
+                            <option value="Absent" ${status === 'Absent' ? 'selected' : ''}>Absent</option>
+                            <option value="Late" ${status === 'Late' ? 'selected' : ''}>Late</option>
+                        </select>
+                    </td>`;
+            }
+            return cells;
+        }
+
+        function getAttendanceStatus(studentName) {
+            const selectedDate = new Date(localStorage.getItem('selectedDate') || new Date().toISOString().split('T')[0]);
+            const startOfWeek = selectedDate.getDate() - selectedDate.getDay() + 1;
+            let status = '';
+
+            for (let i = 0; i < 5; i++) {
+                const date = new Date(selectedDate.setDate(startOfWeek + i));
+                const dateString = date.toISOString().split('T')[0];
+                status += `${dateString}: ${document.getElementById(`attendance_${studentName}_${dateString}`).value}, `;
+            }
+            return status.slice(0, -2);
+        }
+
+        function getStudents() {
+            return JSON.parse(localStorage.getItem('students')) || [];
+        }
+
+        function saveAttendance() {
+            const section = document.getElementById('sectionChooser').value;
+            const students = getStudents();
+
+            students.forEach(student => {
+                if (student.strand === section) {
+                    for (let i = 0; i < 5; i++) {
+                        const selectedDate = new Date(localStorage.getItem('selectedDate') || new Date().toISOString().split('T')[0]);
+                        const date = new Date(selectedDate.setDate(selectedDate.getDate() - selectedDate.getDay() + 1 + i));
+                        const dateString = date.toISOString().split('T')[0];
+                        const status = document.getElementById(`attendance_${student.name}_${dateString}`).value;
+                        student[dateString] = status;
+                    }
+                }
+            });
+
+            localStorage.setItem('students', JSON.stringify(students));
+            alert('Attendance saved successfully.');
+        }
+
+        function sendNotification(studentName, status) {
+            const message = `Attendance status for ${studentName}: ${status}`;
+            alert(message);
+        }
+    </script>
+</body>
+</html>

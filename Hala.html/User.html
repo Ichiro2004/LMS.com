@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 90%;
+            max-width: 600px;
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h2 {
+            color: #0078D7;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            border: 3px solid #0078D7;
+            transition: transform 0.3s;
+        }
+        .profile-avatar:hover {
+            transform: scale(1.1);
+        }
+        .profile-info {
+            margin: 20px 0;
+        }
+        .profile-info p {
+            margin: 5px 0;
+            font-size: 16px;
+            color: #333;
+        }
+        .actions {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .actions button {
+            background-color: #0078D7;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            margin: 10px 0;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            width: 100%;
+            max-width: 300px;
+        }
+        .actions button:hover {
+            background-color: #0053a5;
+            transform: scale(1.05);
+        }
+        .dashboard-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        .stat-box {
+            background-color: #0078D7;
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            width: 120px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        .stat-box:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>User Dashboard</h2>
+        <img src="avatar.jpg" alt="User Avatar" class="profile-avatar" id="avatarImg">
+        <div class="profile-info">
+            <p><strong>Name:</strong> <span id="name">John Doe</span></p>
+            <p><strong>Email:</strong> <span id="email">user@example.com</span></p>
+            <p><strong>School Year:</strong> <span id="year">2023-2024</span></p>
+            <p><strong>Strand:</strong> <span id="strand">ICT PROGRAMMING</span></p>
+        </div>
+        <div class="dashboard-stats">
+            <div class="stat-box">
+                <h3>Attendance</h3>
+                <p id="attendancePercentage">0%</p>
+            </div>
+            <div class="stat-box">
+                <h3>Total Days</h3>
+                <p id="totalDays">0</p>
+            </div>
+        </div>
+        <div class="actions">
+            <button onclick="location.href='userd.html'">Attendance Form</button>
+            <button onclick="location.href='editProfile.html'">Edit Profile</button>
+            <button onclick="location.href='user_settings.html'">Settings</button>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', loadDashboard);
+
+        function loadDashboard() {
+            const email = localStorage.getItem('currentUserEmail');
+            if (!email) {
+                alert('No user logged in.');
+                window.location.href = 'signin.html';
+                return;
+            }
+
+            const user = JSON.parse(localStorage.getItem('user_' + email));
+            if (user) {
+                document.getElementById('name').textContent = user.name;
+                document.getElementById('email').textContent = user.email;
+                document.getElementById('year').textContent = user.schoolYear;
+                document.getElementById('strand').textContent = user.strand;
+                document.getElementById('avatarImg').src = localStorage.getItem('avatar_' + email) || 'avatar.jpg';
+
+                
+                calculateAttendanceStats(user.strand);
+            } else {
+                alert('User data not found.');
+                window.location.href = 'signin.html';
+            }
+        }
+
+        function calculateAttendanceStats(strand) {
+            const students = getStudents().filter(student => student.strand === strand);
+            let totalDays = 0;
+            let presentDays = 0;
+
+            const today = new Date();
+            const startOfWeek = today.getDate() - today.getDay() + 1;
+
+            for (let i = 0; i < 5; i++) {
+                const date = new Date(today.setDate(startOfWeek + i));
+                const dateString = date.toISOString().split('T')[0];
+                students.forEach(student => {
+                    if (student.attendance && student.attendance[dateString] === 'Present') {
+                        presentDays++;
+                    }
+                });
+                totalDays++;
+            }
+
+            const attendancePercentage = ((presentDays / (totalDays * students.length)) * 100).toFixed(2);
+
+            document.getElementById('attendancePercentage').textContent = `${attendancePercentage}%`;
+            document.getElementById('totalDays').textContent = totalDays;
+        }
+
+        function getStudents() {
+            return JSON.parse(localStorage.getItem('students')) || [];
+        }
+    </script>
+</body>
+</html>

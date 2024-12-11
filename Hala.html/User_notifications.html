@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>View Notifications</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e0e7ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            width: 95%;
+            max-width: 1200px;
+            text-align: center;
+        }
+        h2 {
+            color: #3b82f6;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .notification-list {
+            margin-bottom: 20px;
+            max-height: 50vh;
+            overflow-y: auto;
+        }
+        .notification {
+            background-color: #f9fafb;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+        }
+        .notification:hover {
+            background-color: #f1f5f9;
+        }
+        .notification-title {
+            font-weight: bold;
+            color: #3b82f6;
+        }
+        .notification-message {
+            color: #333;
+        }
+        .notification-timestamp {
+            color: #888;
+            font-size: 0.9em;
+            text-align: right;
+        }
+        button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Notifications</h2>
+        <div id="notificationList" class="notification-list">
+
+        </div>
+        <button onclick="location.href='userd.html'">Back to Attendance</button>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', loadNotifications);
+
+        function loadNotifications() {
+            const email = localStorage.getItem('currentUserEmail');
+            if (!email) {
+                alert('No user logged in.');
+                window.location.href = 'signin.html';
+                return;
+            }
+
+            const notifications = getNotificationsForUser(email);
+            const notificationList = document.getElementById('notificationList');
+            notificationList.innerHTML = '';
+
+            notifications.forEach(notification => {
+                const notificationDiv = document.createElement('div');
+                notificationDiv.classList.add('notification');
+
+                const title = document.createElement('div');
+                title.classList.add('notification-title');
+                title.textContent = notification.title;
+
+                const message = document.createElement('div');
+                message.classList.add('notification-message');
+                message.textContent = notification.message;
+
+                const timestamp = document.createElement('div');
+                timestamp.classList.add('notification-timestamp');
+                timestamp.textContent = new Date(notification.timestamp).toLocaleString();
+
+                notificationDiv.appendChild(title);
+                notificationDiv.appendChild(message);
+                notificationDiv.appendChild(timestamp);
+                notificationList.appendChild(notificationDiv);
+            });
+        }
+
+        function getNotificationsForUser(email) {
+            const allNotifications = JSON.parse(localStorage.getItem('notifications')) || {};
+            return allNotifications[email] || [];
+        }
+    </script>
+</body>
+</html>

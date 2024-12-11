@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Account</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e0e7ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        h1 {
+            color: #3b82f6;
+            margin-bottom: 20px;
+        }
+        form {
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="email"],
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .button {
+            background-color: #3b82f6;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+        .button:hover {
+            background-color: #2563eb;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+            display: block;
+            font-size: 14px;
+        }
+        .back-link a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const email = getQueryParam('email');
+            if (email) {
+                loadUserData(email);
+            } else {
+                alert('No user email provided.');
+            }
+
+            document.querySelector('form').addEventListener('submit', function(event) {
+                event.preventDefault();
+                saveUserData(email);
+            });
+        });
+
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        function loadUserData(email) {
+            const accounts = JSON.parse(localStorage.getItem('accounts')) || [];
+            const userData = accounts.find(user => user.email === email);
+
+            if (userData) {
+                document.getElementById('name').value = userData.name;
+                document.getElementById('grade').value = userData.grade;
+                document.getElementById('strand_course').value = userData.strand;
+                document.getElementById('school_year').value = userData.school_year;
+                document.getElementById('contact').value = userData.contact;
+                document.getElementById('email').value = userData.email;
+            } else {
+                alert('User not found.');
+            }
+        }
+
+        function saveUserData(originalEmail) {
+            const accounts = JSON.parse(localStorage.getItem('accounts')) || [];
+            const updatedUser = {
+                name: document.getElementById('name').value,
+                grade: document.getElementById('grade').value,
+                strand: document.getElementById('strand_course').value,
+                school_year: document.getElementById('school_year').value,
+                contact: document.getElementById('contact').value,
+                email: document.getElementById('email').value
+            };
+
+            const userIndex = accounts.findIndex(user => user.email === originalEmail);
+
+            // Update the user data
+            if (userIndex !== -1) {
+                accounts[userIndex] = updatedUser;
+            } else {
+                accounts.push(updatedUser);
+            }
+
+            localStorage.setItem('accounts', JSON.stringify(accounts));
+
+            // Add notification
+            addNotification('Account Updated', `The account for ${updatedUser.name} was updated.`);
+
+            // Add history
+            addUserHistoryEntry(updatedUser.email, new Date().toLocaleString(), 'Account Update', `Account updated for ${updatedUser.name}.`);
+
+            alert('User data updated successfully.');
+            window.location.href = 'manageacc.html';
+        }
+
+        function addNotification(title, message) {
+            const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+            notifications.push({ title, message, timestamp: new Date().toLocaleString() });
+            localStorage.setItem('notifications', JSON.stringify(notifications));
+        }
+
+        function addUserHistoryEntry(email, date, action, details) {
+            let userHistory = JSON.parse(localStorage.getItem('userHistory')) || {};
+            if (!userHistory[email]) {
+                userHistory[email] = [];
+            }
+            userHistory[email].push({ date, action, details });
+            localStorage.setItem('userHistory', JSON.stringify(userHistory));
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Edit Account</h1>
+        <form>
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+            
+            <label for="grade">Grade Level:</label>
+            <select id="grade" name="grade" required>
+                <option value="11">Grade 11</option>
+                <option value="12">Grade 12</option>
+            </select>
+
+            <label for="strand_course">Strand/Course:</label>
+            <select id="strand_course" name="strand_course" required>
+                <option value="ICT PROGRAMMING">ICT PROGRAMMING</option>
+                <option value="ABM">ABM</option>
+                <option value="ICT ANIMATION">ICT ANIMATION</option>
+                <option value="HUMSS">HUMSS</option>
+                <option value="GAS">GAS</option>
+            </select>
+
+            <label for="school_year">School Year:</label>
+            <select id="school_year" name="school_year" required>
+                <option value="2023-2024">2023 - 2024</option>
+                <option value="2024-2025">2024 - 2025</option>
+                <option value="2025-2026">2025 - 2026</option>
+            </select>
+
+            <label for="contact">Contact Number:</label>
+            <input type="text" id="contact" name="contact" required>
+            
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            
+            <button type="submit" class="button">Save Changes</button>
+        </form>
+        <p class="back-link"><a href="manageacc.html">Back to Manage Accounts</a></p>
+    </div>
+</body>
+</html>
